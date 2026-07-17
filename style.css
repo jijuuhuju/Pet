@@ -1,157 +1,101 @@
-/* 全体設定 */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "Arial", "Hiragino Kaku Gothic ProN", sans-serif;
-    background: #fff3b0;
-    color: #333;
-}
+body{
 
+margin:0;
 
-/* ヘッダー */
-header {
-    background: #ffcc33;
-    padding: 20px;
-    text-align: center;
-    border-bottom: 5px solid #ff9900;
-}
+background:#fff2b8;
 
-header h1 {
-    margin: 0;
-    font-size: 32px;
-}
+font-family:sans-serif;
 
-header p {
-    margin: 10px;
-}
-
-
-/* メイン */
-main {
-    max-width: 700px;
-    margin: auto;
-    padding: 20px;
-}
-
-
-/* 各カード */
-section {
-    background: white;
-    margin: 15px 0;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
-}
-
-
-/* ひよこエリア */
-.pet-area {
-    text-align: center;
-}
-
-
-#pet {
-    font-size: 120px;
-    margin: 20px;
-    transition: 0.3s;
-}
-
-
-/* セリフ */
-#message {
-    background: #fff8dc;
-    padding: 15px;
-    border-radius: 15px;
-    font-size: 20px;
-}
-
-
-/* 見出し */
-h2 {
-    color: #ff9900;
-}
-
-
-/* ステータス */
-.status p,
-.info p {
-    font-size: 18px;
-    margin: 8px;
-}
-
-
-/* ボタン */
-button {
-    background: #ffcc33;
-    border: none;
-    border-radius: 15px;
-
-    padding: 12px;
-    margin: 5px;
-
-    font-size: 17px;
-    cursor: pointer;
-
-    transition: 0.2s;
-}
-
-
-button:hover {
-    transform: scale(1.08);
-    background: #ffd966;
-}
-
-
-button:active {
-    transform: scale(0.95);
-}
-
-
-/* 持ち物・図鑑 */
-#inventory,
-#stickerBook,
-#toyBook,
-#event {
-
-    background: #fff8dc;
-
-    padding: 15px;
-
-    border-radius: 15px;
-
-    min-height: 30px;
-}
-
-
-/* フッター */
-footer {
-
-    text-align: center;
-
-    padding: 20px;
-
-    color: #777;
+text-align:center;
 
 }
 
 
+h1{
 
-/* スマホ対応 */
-@media(max-width:600px){
+font-size:24px;
 
-    header h1 {
-        font-size: 24px;
-    }
+margin:10px;
 
-
-    #pet {
-        font-size: 90px;
-    }
+}
 
 
-    button {
-        width: 90%;
-        font-size: 18px;
-    }
+#pet{
+
+font-size:70px;
+
+margin:5px;
+
+}
+
+
+#message{
+
+background:white;
+
+border-radius:15px;
+
+padding:8px;
+
+margin:auto;
+
+width:80%;
+
+font-size:16px;
+
+}
+
+
+.box{
+
+background:white;
+
+border-radius:15px;
+
+padding:10px;
+
+margin:10px auto;
+
+width:85%;
+
+box-shadow:0 3px 8px #aaa;
+
+}
+
+
+.small{
+
+font-size:14px;
+
+}
+
+
+button{
+
+font-size:20px;
+
+padding:8px;
+
+margin:3px;
+
+border:0;
+
+border-radius:12px;
+
+background:#ffd34d;
+
+}
+
+
+button:active{
+
+transform:scale(0.9);
+
+}
+
+
+.buttons{
+
+margin:5px;
 
 }
