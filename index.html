@@ -1,92 +1,225 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <title>自己責任にわとり育成</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; background: #faf8f5; padding: 20px; color: #333; }
-        .game-box { background: white; padding: 25px; border-radius: 15px; max-width: 440px; margin: auto; box-shadow: 0 8px 16px rgba(0,0,0,0.05); }
-        .pet { font-size: 85px; margin: 15px 0; min-height: 110px; display: flex; align-items: center; justify-content: center; }
-        .punch { animation: shake 0.1s infinite; }
-        @keyframes shake { 0% { transform: translate(2px, 1px); } 100% { transform: translate(-1px, -2px); } }
-        .status-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; background: #f9f9f9; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: bold; }
-        .dialogue-box { background: #fff0f2; border-left: 5px solid #ff4a6b; padding: 12px; min-height: 75px; margin: 15px 0; text-align: left; font-size: 14px; line-height: 1.4; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        button { padding: 10px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; font-size: 13px; }
-        .btn-f1 { background: #ffe082; } .btn-f2 { background: #ffab91; } .btn-f3 { background: #c8e6c9; }
-        .btn-a { background: #b3e5fc; } .btn-t { background: #f8bbd0; } .btn-i { background: #e0e0e0; }
-        .btn-toy, .btn-evolve { grid-column: span 2; display: none; }
-        .btn-toy { background: #ffcc80; } .btn-evolve { background: #a5d6a7; font-size: 15px; }
-    </style>
+<meta charset="UTF-8">
+
+<!-- サイト設定 -->
+<title>🐥 わがままひよこ育成</title>
+<meta name="description" content="わがままなひよこを育てる育成ゲーム">
+
+<!-- スマホ対応 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- アイコン設定（後で追加可能） -->
+<link rel="icon" href="favicon.ico">
+
+<!-- CSS -->
+<link rel="stylesheet" href="style.css">
 </head>
+
+
 <body>
-<div class="game-box">
-    <h2 id="stage-title">ひよこ期（わんぱく暴君）</h2>
-    <div id="pet-avatar" class="pet">🐥</div>
-    <div id="dialogue" class="dialogue-box">「お腹すいたーー！😭 早くごはん！遅れたら全部あんたのせいだからね！😭」</div>
-    <div class="status-container">
-        <div>栄養価: <span id="nutrition">0</span></div><div>ストレス: <span id="stress">0</span></div>
-        <div>所持金: <span id="money">4000</span>円</div><div>お世話: <span id="turns">0</span>/6</div>
-    </div>
-    <div class="btn-group" id="commands">
-        <button class="btn-f1" onclick="action('organic')">高級穀物（-500円）</button>
-        <button class="btn-f2" onclick="action('junk')">ポテト（-100円）</button>
-        <button class="btn-f3" onclick="action('veg')">新鮮な野菜（-200円）</button>
-        <button class="btn-a" onclick="action('hug')">抱きしめる</button>
-        <button class="btn-a" onclick="action('dance')">全力ダンス</button>
-        <button class="btn-t" onclick="action('not-cute')">「可愛くない」</button>
-        <button class="btn-t" onclick="action('scare')">驚かす</button>
-        <button class="btn-i" onclick="action('ignore')">完全に無視する</button>
-        <button class="btn-toy" id="btn-t1" onclick="action('buy-toy')">派手なおもちゃ（-1500円）</button>
-        <button class="btn-evolve" id="btn-ev" onclick="evolve()">運命を受け入れて進化する</button>
-    </div>
+
+<header>
+<h1>🐥 わがままひよこ育成</h1>
+<p>ひよこを育てて性格を変化させよう！</p>
+</header>
+
+
+<main>
+
+<!-- ひよこ表示 -->
+<section class="pet-area">
+
+<div id="pet">
+🐥
 </div>
-<script>
-    let nutrition = 0, stress = 0, money = 4000, turns = 0, isEvolved = false, isDemandingToy = false, audioCtx = null;
-    function playSound(type) {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination);
-        const now = audioCtx.currentTime;
-        if (type === 'piyo') { osc.type = 'sine'; osc.frequency.setValueAtTime(900, now); osc.frequency.exponentialRampToValueAtTime(1300, now + 0.08); }
-        else if (type === 'punch') { osc.type = 'triangle'; osc.frequency.setValueAtTime(160, now); osc.frequency.linearRampToValueAtTime(50, now + 0.1); }
-        else if (type === 'evolve') { osc.type = 'square'; osc.frequency.setValueAtTime(261, now); osc.frequency.setValueAtTime(523, now + 0.15); }
-        gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3);
-    }
-    function action(type) {
-        if (turns >= 6 || isEvolved) return;
-        const av = document.getElementById('pet-avatar');
-        if (isDemandingToy && type !== 'buy-toy') {
-            stress += 30; isDemandingToy = false; document.getElementById('btn-t1').style.display = 'none';
-            av.innerText = "💢🐥💢"; av.classList.add('punch'); playSound('punch');
-            say("「なんでおもちゃスルーするのー！😭 おりゃおりゃおりゃー！💥（羽ビンタ）買ってくれなかったの、一生あんたのせいだからね！😭」");
-            setTimeout(() => av.classList.remove('punch'), 800); return nextTurn();
-        }
-        if (type === 'organic') { if (money < 500) return say("「お金ないじゃん！😭 あんたの計画性ゼロのせい！」"); money -= 500; nutrition += 20; stress += 5; av.innerText = "🐥"; say("「高級なやつだ！わーい！おいしい！……でもなんか粒が大きくてアゴ疲れた！あんたのせいだからね！🥺」"); }
-        else if (type === 'junk') { if (money < 100) return say("「ポテトすら買えないの！？😭」"); money -= 100; nutrition -= 10; stress += 15; av.innerText = "🍟🐥"; say("「ポテトおいしー！😆 ……ハッ！こんな体に悪そうなもの食べさせて病気にする気でしょ！？サイテー！😭」"); }
-        else if (type === 'veg') { if (money < 200) return say("「お野菜買うお金もないの？🥺」"); money -= 200; nutrition += 15; stress += 10; av.innerText = "🥺"; say("「えっ、お野菜……？体に良いのは知ってるけど……いやいやー🥺！！緑色だし絶対苦いもん！いやいやーー！！😭（完食）」"); }
-        else if (type === 'hug') { stress = Math.max(0, stress - 15); av.innerText = "🐥"; say("「ふんっ！🥺 ぎゅーってすれば誤魔化せると思ってんでしょ！まあ、ちょっとだけ許してあげるけどさ！🥺」"); }
-        else if (type === 'dance') { stress = Math.max(0, stress - 20); av.innerText = "😆"; say("「あはは！何その変なダンス！ダサすぎるーー！🤣 ジワジワくるからストレス減ったじゃん、どうしてくれるの！🥺」"); }
-        else if (type === 'not-cute') { stress += 35; av.innerText = "💢🐥💢"; av.classList.add('punch'); playSound('punch'); say("「はあぁ！？😭 今なんて言ったの！？可愛くないって言うほうが可愛くないんだからね！！おりゃおりゃおりゃーー！！💥（猛烈な羽ビンタ）私が可愛く見えないなら、100%あんたの愛が足りないせいだからね！！😭」"); setTimeout(() => av.classList.remove('punch'), 800); }
-        else if (type === 'scare') { stress += 25; av.innerText = "😭"; say("「ギャッ！！😭😭 ビックリしたー！心臓飛び出るかと思ったじゃん！寿命縮んでたら全部あんたの責任だからね！！😭」"); }
-        else if (type === 'ignore') { stress += 25; av.innerText = "💢🐥💢"; av.classList.add('punch'); playSound('punch'); say("「無視したなーー！！😭 構わないならこっちから行くよ！！おりゃおりゃおりゃーー！！💥（無言の羽ビンタ連打）私の存在をスルーしたバツだよ！😭」"); setTimeout(() => av.classList.remove('punch'), 800); }
-        else if (type === 'buy-toy') { if (money < 1500) return say("「お金ないのにおねだりさせないで！😭」"); money -= 1500; stress = Math.max(0, stress - 40); isDemandingToy = false; document.getElementById('btn-t1').style.display = 'none'; av.innerText = "✨🐥✨"; say("「やったー！😆 このキラキラしてて丸いやつ欲しかったの！理由は無いけど欲しかったの！……あ、これ開かないから開けて🥺」"); }
-        if (type !== 'not-cute' && type !== 'ignore' && type !== 'punch') playSound('piyo');
-        nextTurn();
-    }
-    function nextTurn() {
-        turns++; document.getElementById('turns').innerText = turns; document.getElementById('nutrition').innerText = nutrition; document.getElementById('stress').innerText = stress; document.getElementById('money').innerText = money;
-        if (turns >= 6) { endGame(); } else if ((turns === 2 || turns === 4) && !isDemandingToy) { setTimeout(() => { isDemandingToy = true; document.getElementById('btn-t1').style.display = 'block'; document.getElementById('pet-avatar').innerText = "😭"; say("「ギャーーーン！！😭 あのピンクでピカピカしたおもちゃ買って買って買ってーー！！😭 理由は無い！見た目が最高だから買ってーー！！😭」"); }, 1000); }
-    }
-    function say(text) { document.getElementById('dialogue').innerText = text; }
-    function endGame() { document.getElementById('commands').innerHTML = '<button class="btn-evolve" style="display:block" onclick="evolve()">運命を受け入れて進化する</button>'; document.getElementById('pet-avatar').innerText = "🥺"; say("「……あ、もう進化の時間だ。どんな姿になろうと、私は自分の運命を受け入れるよ。さあ、ボタンを押してね🥺」"); }
-    function evolve() {
-        isEvolved = true; playSound('evolve');
-        const av = document.getElementById('pet-avatar'), ti = document.getElementById('stage-title'), di = document.getElementById('dialogue');
-        if (stress >= 55 || Math.random() < 0.25) { av.innerText = "🍗"; ti.innerText = "運命：フライドチキン"; di.innerText = "「あんたのせいでカリカリのチキンになっちゃったじゃん……。でも、これも私の運命。誰かの胃袋の中で、次の人生を精一杯生きるよ。可愛くないって言われた時は寂しかったし、いっぱい叩いてごめんね。美味しく食べてね🥺」"; }
-        else if (nutrition >= 35 && money < 1000) { av.innerText = "👑🐓"; ti.innerText = "運命：気高き女王ニワトリ"; di.innerText = "「コケコッコー！たくさん投資してくれてありがとう🥺。暴走もしないし、あなたの功績も分かっているわ。いつも無茶苦タコ叩いていた私を、最後まで見捨てずに最高の姿にしてくれたあなたに、心からの敬意と感謝を捧げるわ🥺」"; }
-        else if (nutrition >= 30) { av.innerText = "🐓"; ti.innerText = "運命：普通のにわとり"; di.innerText = "「コケコッコー！あんなにすぐ泣いて、おりゃおりゃ叩いてた私が、こんなに落ち着いたにわとりになるなんてね。たくさんお世話してくれてありがとう。どんな運命であれ、私は私の生き方を誇るよ。ありがとう🐓」"; }
-        else { av.innerText = "🐓"; ti.innerText = "運命：自立した野良にわとり"; di.innerText = "「ちょっとジャンクに育っちゃった🥺。でもこれも私の運命、この細い脚で力強く生きていくよ。いつも無視したり驚かしたりされたけど、最後まで一緒にいてくれてありがとう。元気でね🥺」"; }
-    }
-</script>
+
+<div id="message">
+🐥「こんにちはだもん！」
+</div>
+
+</section>
+
+
+<!-- 基本情報 -->
+<section class="info">
+
+<h2>📋 ひよこ情報</h2>
+
+<p>
+名前：
+<span id="name">
+ぴよ
+</span>
+</p>
+
+<p>
+成長：
+<span id="stage">
+🥚たまご期
+</span>
+</p>
+
+<p>
+性格：
+<span id="personality">
+？？？
+</span>
+</p>
+
+</section>
+
+
+
+<!-- ステータス -->
+<section class="status">
+
+<h2>📊ステータス</h2>
+
+<p>❤️ なつき度：
+<span id="love">50</span>
+</p>
+
+<p>😤 わがまま度：
+<span id="selfish">80</span>
+</p>
+
+<p>🥦 野菜嫌い度：
+<span id="vegetable">100</span>
+</p>
+
+<p>😭 ストレス：
+<span id="stress">20</span>
+</p>
+
+<p>😂 ツッコミ度：
+<span id="joke">0</span>
+</p>
+
+<p>💃 ダンス力：
+<span id="dance">0</span>
+</p>
+
+</section>
+
+
+
+<!-- 行動 -->
+<section>
+
+<h2>🎮 お世話</h2>
+
+<button onclick="giveVegetable()">🥦野菜</button>
+
+<button onclick="giveSnack()">🍰ケーキ</button>
+
+<button onclick="giveToy()">🧸おもちゃ</button>
+
+<button onclick="hug()">🫂だっこ</button>
+
+<button onclick="dance()">💃ダンス</button>
+
+<button onclick="giveSticker()">🏷️シール</button>
+
+<button onclick="giveDrink()">🧋飲み物</button>
+
+<button onclick="giveWatermelon()">🍉スイカの皮</button>
+
+<button onclick="clean()">🧹掃除</button>
+
+
+</section>
+
+
+
+<!-- 持ち物 -->
+<section>
+
+<h2>🎒持ち物</h2>
+
+<div id="inventory">
+なし
+</div>
+
+</section>
+
+
+
+<!-- コレクション -->
+
+<section>
+
+<h2>🏷️シール帳</h2>
+
+<div id="stickerBook">
+まだない
+</div>
+
+
+<h2>🧸おもちゃ図鑑</h2>
+
+<div id="toyBook">
+まだない
+</div>
+
+</section>
+
+
+
+<!-- イベント -->
+
+<section>
+
+<h2>🎲イベント</h2>
+
+<div id="event">
+何も起きていません
+</div>
+
+</section>
+
+
+
+<!-- セーブ -->
+
+<section>
+
+<button onclick="saveGame()">
+💾セーブ
+</button>
+
+
+<button onclick="loadGame()">
+📂読み込み
+</button>
+
+
+<button onclick="resetGame()">
+🔄リセット
+</button>
+
+
+</section>
+
+
+</main>
+
+
+
+<footer>
+
+<p>
+🐥 Hiyoko Pet Project
+</p>
+
+</footer>
+
+
+
+<script src="script.js"></script>
+
 </body>
+
 </html>
