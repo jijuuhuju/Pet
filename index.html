@@ -3,219 +3,95 @@
 
 <head>
 <meta charset="UTF-8">
-
-<!-- サイト設定 -->
 <title>🐥 わがままひよこ育成</title>
-<meta name="description" content="わがままなひよこを育てる育成ゲーム">
 
-<!-- スマホ対応 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- アイコン設定（後で追加可能） -->
-<link rel="icon" href="favicon.ico">
-
-<!-- CSS -->
 <link rel="stylesheet" href="style.css">
 </head>
 
 
 <body>
 
-<header>
-<h1>🐥 わがままひよこ育成</h1>
-<p>ひよこを育てて性格を変化させよう！</p>
-</header>
+<h1>🐥 ひよこ育成</h1>
 
 
-<main>
-
-<!-- ひよこ表示 -->
-<section class="pet-area">
-
-<div id="pet">
-🐥
-</div>
+<div id="pet">🐥</div>
 
 <div id="message">
 🐥「こんにちはだもん！」
 </div>
 
-</section>
+
+<div class="box">
+
+<div>❤️ なつき <span id="love">50</span></div>
+<div>😤 わがまま <span id="selfish">80</span></div>
+<div>🥦 野菜嫌い <span id="vegetable">100</span></div>
+<div>😭 ストレス <span id="stress">20</span></div>
+<div>😂 ツッコミ <span id="joke">0</span></div>
+<div>💃 ダンス <span id="dance">0</span></div>
+
+</div>
 
 
-<!-- 基本情報 -->
-<section class="info">
+<div class="buttons">
 
-<h2>📋 ひよこ情報</h2>
+<button onclick="giveVegetable()">🥦</button>
+<button onclick="giveCake()">🍰</button>
+<button onclick="giveToy()">🧸</button>
+<button onclick="hug()">🫂</button>
 
-<p>
-名前：
-<span id="name">
-ぴよ
-</span>
-</p>
+<br>
 
-<p>
+<button onclick="dance()">💃</button>
+<button onclick="giveSticker()">🏷️</button>
+<button onclick="giveDrink()">🧋</button>
+<button onclick="giveWatermelon()">🍉</button>
+
+<br>
+
+<button onclick="clean()">🧹</button>
+
+</div>
+
+
+
+<div class="box small">
+
 成長：
-<span id="stage">
-🥚たまご期
-</span>
-</p>
+<span id="stage">🥚たまご期</span>
 
-<p>
+<br>
+
 性格：
-<span id="personality">
-？？？
-</span>
-</p>
+<span id="personality">普通</span>
 
-</section>
+</div>
 
 
 
-<!-- ステータス -->
-<section class="status">
+<div class="box small">
 
-<h2>📊ステータス</h2>
-
-<p>❤️ なつき度：
-<span id="love">50</span>
-</p>
-
-<p>😤 わがまま度：
-<span id="selfish">80</span>
-</p>
-
-<p>🥦 野菜嫌い度：
-<span id="vegetable">100</span>
-</p>
-
-<p>😭 ストレス：
-<span id="stress">20</span>
-</p>
-
-<p>😂 ツッコミ度：
-<span id="joke">0</span>
-</p>
-
-<p>💃 ダンス力：
-<span id="dance">0</span>
-</p>
-
-</section>
-
-
-
-<!-- 行動 -->
-<section>
-
-<h2>🎮 お世話</h2>
-
-<button onclick="giveVegetable()">🥦野菜</button>
-
-<button onclick="giveSnack()">🍰ケーキ</button>
-
-<button onclick="giveToy()">🧸おもちゃ</button>
-
-<button onclick="hug()">🫂だっこ</button>
-
-<button onclick="dance()">💃ダンス</button>
-
-<button onclick="giveSticker()">🏷️シール</button>
-
-<button onclick="giveDrink()">🧋飲み物</button>
-
-<button onclick="giveWatermelon()">🍉スイカの皮</button>
-
-<button onclick="clean()">🧹掃除</button>
-
-
-</section>
-
-
-
-<!-- 持ち物 -->
-<section>
-
-<h2>🎒持ち物</h2>
-
-<div id="inventory">
+🏷️
+<span id="stickers">
 なし
-</div>
+</span>
 
-</section>
+<br>
 
+🧸
+<span id="toys">
+なし
+</span>
 
-
-<!-- コレクション -->
-
-<section>
-
-<h2>🏷️シール帳</h2>
-
-<div id="stickerBook">
-まだない
 </div>
 
 
-<h2>🧸おもちゃ図鑑</h2>
 
-<div id="toyBook">
-まだない
-</div>
+<button onclick="saveGame()">💾保存</button>
 
-</section>
-
-
-
-<!-- イベント -->
-
-<section>
-
-<h2>🎲イベント</h2>
-
-<div id="event">
-何も起きていません
-</div>
-
-</section>
-
-
-
-<!-- セーブ -->
-
-<section>
-
-<button onclick="saveGame()">
-💾セーブ
-</button>
-
-
-<button onclick="loadGame()">
-📂読み込み
-</button>
-
-
-<button onclick="resetGame()">
-🔄リセット
-</button>
-
-
-</section>
-
-
-</main>
-
-
-
-<footer>
-
-<p>
-🐥 Hiyoko Pet Project
-</p>
-
-</footer>
-
+<button onclick="resetGame()">🔄リセット</button>
 
 
 <script src="script.js"></script>
