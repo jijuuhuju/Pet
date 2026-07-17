@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自己責任にわとり育成</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #faf8f5; padding: 20px; color: #333; }
+        .game-box { background: white; padding: 30px; border-radius: 15px; max-width: 450px; margin: auto; box-shadow: 0 8px 16px rgba(0,0,0,0.05); border: 2px solid #eee; }
+        .pet { font-size: 90px; margin: 20px 0; min-height: 120px; display: flex; align-items: center; justify-content: center; }
+        .status-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; background: #f9f9f9; padding: 10px; border-radius: 8px; }
+        .status { font-size: 14px; font-weight: bold; }
+        .dialogue-box { background: #fff0f2; border-left: 5px solid #ff4a6b; padding: 15px; border-radius: 4px; min-height: 70px; margin: 20px 0; text-align: left; font-size: 15px; line-height: 1.4; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        button { font-size: 14px; padding: 12px; cursor: pointer; border-radius: 8px; border: none; font-weight: bold; transition: all 0.2s; }
+        .btn-feed1 { background: #ffe082; color: #5d4037; }
+        .btn-feed2 { background: #ffab91; color: #d84315; }
+        .btn-toy { background: #ffcc80; color: #e65100; grid-column: span 2; display: none; }
+        .btn-action { background: #b3e5fc; color: #0277bd; }
+        .btn-evolve { background: #a5d6a7; color: #2e7d32; grid-column: span 2; font-size: 16px; display: none; }
+        button:hover { opacity: 0.8; transform: translateY(-1px); }
+        button:disabled { background: #ccc; color: #666; cursor: not-allowed; transform: none; }
+    </style>
+</head>
+<body>
+
+<div class="game-box">
+    <h2 id="stage-title">ひよこ期（🥺駄々こね）</h2>
+    
+    <!-- ペットの見た目 -->
+    <div id="pet-avatar" class="pet">🐥</div>
+    
+    <!-- 理不尽なセリフ枠 -->
+    <div id="dialogue" class="dialogue-box">「お腹すいた🥺早くなんか頂戴よ🥺遅れたら全部あんたのせいだからね🥺！？」</div>
+    
+    <!-- ステータス -->
+    <div class="status-container">
+        <div class="status">栄養価: <span id="nutrition">0</span></div>
+        <div class="status">ストレス: <span id="stress">0</span></div>
+        <div class="status">所持金: <span id="money">3000</span>円</div>
+        <div class="status">お世話: <span id="turns">0</span>/6</div>
+    </div>
+
+    <!-- コマンド -->
+    <div class="btn-group">
+        <button class="btn-feed1" id="btn-f1" onclick="action('organic')">高級穀物（-500円）</button>
+        <button class="btn-feed2" id="btn-f2" onclick="action('junk')">フライドポテト（-100円）</button>
+        <button class="btn-action" id="btn-a1" onclick="action('scold')">厳しくしつける</button>
+        <button class="btn-action" id="btn-a2" onclick="action('comfort')">なだめる</button>
+        <button class="btn-toy" id="btn-t1" onclick="action('buy-toy')">おもちゃを買ってあげる（-1500円）</button>
+        <button class="btn-evolve" id="btn-ev" onclick="evolve()">運命を受け入れて進化する</button>
+    </div>
+</div>
+
+<script>
+    let nutrition = 0;
+    let stress = 0;
+    let money = 3000;
+    let turns = 0;
+    let isEvolved = false;
+    let isDemandingToy = false;
+
+    // 定期的な🥺わがままセリフ
+    const complaints = [
+        "「うわーん🥺お皿の形が気に入らない🥺全部あんたの段取りが悪いからだよ🥺」",
+        "「泣いてるんじゃないもん🥺目がちょっと汗かいただけ🥺泣かせた責任、取ってよね🥺！」",
+        "「私がグレたら100%あんたの教育方針のせいだから🥺そこんとこよろしく🥺」",
+        "「あーあ🥺もっとお金持ちの飼い主の元に生まれたかったなー🥺（チラッ）」"
+    ];
+
+    function action(type) {
+        if (turns >= 6 || isEvolved) return;
+
+        // おもちゃおねだり中に他の行動をしたらペナルティ
+        if (isDemandingToy && type !== 'buy-toy') {
+            stress += 20;
+            isDemandingToy = false;
+            document.getElementById('btn-t1').style.display = 'none';
+            say("「おもちゃ買ってって言ったじゃん🥺！無視したな🥺！？もう一生恨むから。私の心が荒んだのはあんたのせい🥺」");
+            nextTurn();
+            return;
+        }
+
+        if (type === 'organic') {
+            if (money < 500) { say("「お金足りないよ🥺計画性なさすぎ🥺」"); return; }
+            money -= 500; nutrition += 20; stress += 5;
+            say("「オーガニック？🥺…まあ食べるけどさ🥺あーあ、顎が疲れた、あんたのせいだよ🥺」");
+        } else if (type === 'junk') {
+            if (money < 100) { say("「ポテトすら買えないの🥺？信じられない🥺」"); return; }
+            money -= 100; nutrition -= 10; stress += 25;
+            say("「うまっ🥺…ハッ、こんなジャンクなの私に与えて病気にさせる気でしょ🥺！サイテー🥺」");
+        } else if (type === 'scold') {
+            stress += 30;
+            say("「なんで怒るの🥺！私がわがままなのは、あんたの愛が足りないからじゃん🥺！うわーーん🥺」");
+        } else if (type === 'comfort') {
+            stress = Math.max(0, stress - 15);
+            say("「フン🥺なだめれば済むと思ってるでしょ🥺まあ、ちょっとだけ機嫌直してあげてもいいけど🥺」");
+        } else if (type === 'buy-toy') {
+            if (money < 1500) { say("「お金がないのにおねだりさせないでよ🥺惨めじゃん🥺」"); return; }
+            money -= 1500;
+            stress = Math.max(0, stress - 40);
+            isDemandingToy = false;
+            document.getElementById('btn-t1').style.display = 'none';
+            say("「わーい🥺これ欲しかったやつ🥺！…でも箱開けるの硬い🥺あんたが開けてよね🥺」");
+        }
+
+        nextTurn();
+    }
+
+    function nextTurn() {
+        turns++;
+        document.getElementById('turns').innerText = turns;
+        document.getElementById('nutrition').innerText = nutrition;
+        document.getElementById('stress').innerText = stress;
+        document.getElementById('money').innerText = money;
+
+        // 進行管理
+        if (turns >= 6) {
+            endGame();
+        } else {
+            // 確率でおもちゃの駄々こねが発生（3ターン目と5ターン目に起きやすい）
+            if ((turns === 2 || turns === 4) && !isDemandingToy) {
+                setTimeout(() => {
+                    isDemandingToy = true;
+                    document.getElementById('btn-t1').style.display = 'block';
+                    document.getElementById('pet-avatar').innerText = "😭";
+                    say("「ギャーーーーン😭あのおもちゃ買って買って買ってーーー😭！！買ってくれないならここから一歩も動かないからーーー😭！！」");
+                }, 1500);
+            } else if (Math.random() > 0.5) {
+                // 通常の愚痴
+                setTimeout(() => {
+                    document.getElementById('pet-avatar').innerText = "🥺";
+                    const randomMsg = complaints[Math.floor(Math.random() * complaints.length)];
+                    document.getElementById('dialogue').innerText = randomMsg;
+                }, 1500);
+            }
+        }
+    }
+
+    function say(text) {
+        document.getElementById('dialogue').innerText = text;
+    }
+
+    function endGame() {
+        document.getElementById('btn-f1').disabled = true;
+        document.getElementById('btn-f2').disabled = true;
+        document.getElementById('btn-a1').disabled = true;
+        document.getElementById('btn-a2').disabled = true;
+        document.getElementById('btn-t1').style.display = 'none';
+        document.getElementById('btn-ev').style.display = 'block';
+        document.getElementById('pet-avatar').innerText = "🥺";
+        document.getElementById('dialogue').innerText = "「…もう十分に育ったみたい🥺どんな姿になろうと、私は自分の運命を受け入れるよ。さあ、ボタンを押して🥺」";
+    }
+
+    function evolve() {
+        isEvolved = true;
+        document.getElementById('btn-ev').style.display = 'none';
+        
+        const avatar = document.getElementById('pet-avatar');
+        const title = document.getElementById('stage-title');
+        const dialogue = document.getElementById('dialogue');
+
+        // 分岐条件（運とステータス）
+        const isUnlucky = Math.random() < 0.4; // 40%の確率で強制チキンルート（不運）
+
+        if (stress >= 70 || isUnlucky) {
+            // 不運、またはストレス過多でチキン（食用）に…
+            avatar.innerText = "🍗";
+            title.innerText = "運命：フライドチキン";
+            dialogue.innerText = "「あんたのせいでカリカリのチキンになっちゃったじゃん……。でも、これも私の運命。誰かの胃袋の中で、次の人生を精一杯生きるよ。文句ばっかり言ってごめんね、美味しく食べてね🥺」";
+        } else if (nutrition >= 40 && money < 500) {
+            // プレイヤーを破産させたにわとり
+            avatar.innerText = "👑🐓";
+            title.innerText = "運命：わがまま女王ニワトリ";
+            dialogue.innerText = "「コケコッコー！あんたをギリギリまで搾取して最高の姿になってあげたわ🥺！このきらびやかな羽を見なさいよ。貢いでくれて感謝はしてるわよ、気が向いたらまたおもちゃ頂戴ね🥺」";
+        } else if (nutrition >= 30) {
+            // 通常の立派なにわとり
+            avatar.innerText = "🐓";
+            title.innerText = "運命：威厳ある大物大鷭";
+            dialogue.innerText = "「コケコッコー！あんなに泣き虫だった私が、こんなに立派になるなんてね。たくさんお世話してくれてありがとう。この運命を誇りに思うよ🐓」";
+        } else {
+            // ひょろひょろ
+            avatar.innerText = "🐓";
+            title.innerText = "運命：そこら辺の野良にわとり";
+            dialogue.innerText = "「毎日ポテトばっかりジャンクに育った結果がこれだよ🥺まぁ、身軽で悪くないか。この細い脚で、どこまでも走ってやるさ。どんな運命も愛してみせるよ。じゃあね🥺」";
+        }
+    }
+</script>
+
+</body>
+</html>
